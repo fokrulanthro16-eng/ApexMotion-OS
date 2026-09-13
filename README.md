@@ -19,9 +19,7 @@
 <br/>
 <br/>
 
-<p align="center">
-  <img src="docs/images/dashboard.png" alt="ApexMotion OS v3.0 Mission Control Dashboard" width="100%" style="border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.8);" />
-</p>
+![ApexMotion OS v3.0 Mission Control Dashboard](docs/images/dashboard.png)
 
 </div>
 
