@@ -1,0 +1,29 @@
+﻿services:
+  apexmotion-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: apexmotion-os:v3.0
+    container_name: apexmotion-teleop-engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HARDWARE_ACCELERATION=INTEL_NPU
+      - FLEET_SIZE=3
+      - LOG_LEVEL=INFO
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

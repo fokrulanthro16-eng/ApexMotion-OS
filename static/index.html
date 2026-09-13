@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexMotion OS v3.0 | Intel Edge AI & Physical Infrastructure</title>
+  <style>
+    :root {
+      --bg-base: #04070d;
+      --bg-surface: #090e18;
+      --bg-card: rgba(12, 18, 30, 0.9);
+      --border-subtle: rgba(0, 180, 255, 0.15);
+      --border-focus: rgba(0, 240, 255, 0.5);
+      --alpha-cyan: #00f0ff;
+      --bravo-amber: #f59e0b;
+      --charlie-purple: #c084fc;
+      --color-safe: #10b981;
+      --color-danger: #ef4444;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", "Consolas", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Top Command Header */
+    header {
+      background: rgba(8, 12, 20, 0.96);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(14px);
+      z-index: 100;
+    }
+
+    .brand-wrap { display: flex; align-items: center; gap: 12px; }
+
+    .brand-glyph {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0071c5, #00f0ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      font-size: 16px;
+      color: #05080e;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(0, 113, 197, 0.2);
+      border: 1px solid var(--alpha-cyan);
+      color: var(--alpha-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-header:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--alpha-cyan);
+      color: #fff;
+    }
+
+    .btn-npu-toggle {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--alpha-cyan);
+      color: var(--alpha-cyan);
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    .btn-bridge-mode {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--color-safe);
+      color: #6ee7b7;
+      font-weight: 700;
+    }
+
+    .btn-bridge-mode.ros2-active {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--alpha-cyan);
+      color: #00f0ff;
+    }
+
+    .pill {
+      background: rgba(13, 19, 31, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .led-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-danger); box-shadow: 0 0 8px var(--color-danger); }
+    .led-dot.online { background: var(--color-safe); box-shadow: 0 0 8px var(--color-safe); }
+
+    /* Enterprise Fleet ROI Ribbon */
+    .roi-ribbon {
+      background: linear-gradient(90deg, #09101c 0%, #0d1728 50%, #09101c 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 6px 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .roi-tile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .roi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--alpha-cyan);
+    }
+
+    .roi-num { font-size: 15px; font-weight: 800; font-family: var(--font-mono); color: #fff; }
+    .roi-lbl { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Fleet Selector Bar */
+    .fleet-selector-bar {
+      background: rgba(10, 15, 25, 0.92);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 6px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .fleet-tabs { display: flex; gap: 8px; }
+
+    .fleet-tab {
+      background: rgba(14, 20, 32, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .fleet-tab.active-Alpha { border-color: var(--alpha-cyan); background: rgba(0, 240, 255, 0.12); }
+    .fleet-tab.active-Bravo { border-color: var(--bravo-amber); background: rgba(245, 158, 11, 0.12); }
+    .fleet-tab.active-Charlie { border-color: var(--charlie-purple); background: rgba(192, 132, 252, 0.12); }
+
+    .tab-badge { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* Replay Bar */
+    .replay-control-bar {
+      display: none;
+      background: linear-gradient(90deg, #1e1308 0%, #29180b 100%);
+      border-bottom: 2px solid var(--bravo-amber);
+      padding: 6px 24px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .replay-control-bar.active { display: flex; }
+    .scrub-slider { flex: 1; accent-color: var(--bravo-amber); cursor: pointer; }
+
+    /* Main Grid */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 16px;
+      padding: 12px 24px;
+      max-width: 1840px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1240px) { main { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--alpha-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .arena-viewport {
+      position: relative;
+      background: #06090e;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #arenaCanvas { display: block; width: 100%; height: auto; max-height: 500px; cursor: crosshair; }
+
+    .arena-hud-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(8, 12, 20, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--alpha-cyan);
+      pointer-events: none;
+    }
+
+    .slam-stat-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(8, 12, 20, 0.9);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      pointer-events: none;
+    }
+
+    .btn {
+      background: rgba(0, 113, 197, 0.2);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover { background: rgba(0, 113, 197, 0.4); border-color: var(--alpha-cyan); }
+    .btn.active { background: rgba(0, 240, 255, 0.2); border-color: var(--alpha-cyan); color: #00f0ff; }
+
+    .btn-chaos {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .btn-chaos:hover { background: rgba(239, 68, 68, 0.35); border-color: var(--color-danger); color: #fff; }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(239, 68, 68, 0.7);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.5); color: #fff; }
+
+    /* Vision Feed */
+    .vision-container {
+      position: relative;
+      width: 100%;
+      height: 185px;
+      background: #000;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #visionFeedImg { width: 100%; height: 100%; object-fit: cover; }
+
+    .npu-watermark {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 113, 197, 0.85);
+      border: 1px solid var(--alpha-cyan);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Chaos Engineering Panel */
+    .chaos-panel {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px dashed rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .audit-box {
+      background: #05080e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px;
+      height: 110px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .audit-entry { display: flex; gap: 6px; line-height: 1.35; }
+    .audit-time { color: var(--text-tertiary); }
+    .badge-CHAOS_ENGINEERING { color: #f87171; font-weight: 700; }
+    .badge-INTERSECTION_MANAGER { color: #f59e0b; font-weight: 700; }
+    .badge-CRITICAL { color: #ef4444; font-weight: 700; }
+    .badge-DISPATCH { color: #00f0ff; }
+    .badge-INFO { color: #94a3b8; }
+
+    .dpad-container { display: flex; align-items: center; gap: 14px; }
+    .dpad-keys { display: grid; grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 34px); gap: 4px; }
+    .dpad-k {
+      background: rgba(14, 20, 32, 0.9);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .dpad-k:active { background: #0071c5; color: #fff; }
+
+    .macro-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .macro-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .macro-chip:hover { background: rgba(0, 240, 255, 0.12); border-color: var(--alpha-cyan); color: #fff; }
+
+    .cmd-input {
+      flex: 1;
+      background: rgba(6, 9, 14, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .cmd-input:focus { border-color: var(--alpha-cyan); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-glyph">AX</div>
+      <div>
+        <div class="brand-name">
+          APEXMOTION OS
+          <span class="brand-tag">INTEL NPU & EDGE AI</span>
+        </div>
+        <div style="font-size: 10px; color: var(--text-secondary); font-family: var(--font-mono);">
+          ENTERPRISE FLEET SLAM // CHAOS FAULT RESILIENCE // ROS 2 BRIDGE
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Intel NPU Optimization Target Switch -->
+      <button class="btn-header btn-npu-toggle" id="btnHwProfile" onclick="toggleHardwareProfile()">
+        ACCEL: Intel NPU (INT8: 4.1ms)
+      </button>
+      <!-- ROS 2 Hardware Bridge Toggle -->
+      <button class="btn-header btn-bridge-mode" id="btnBridgeMode" onclick="toggleRos2Bridge()">
+        MODE: SIMULATION
+      </button>
+      <button class="btn-header" style="color: var(--bravo-amber); font-weight: 700;" onclick="requestLatestIncidentReplay()">
+        📼 REPLAY INCIDENT
+      </button>
+      <!-- Voice Engine Toggle -->
+      <button class="btn-header" id="btnVoiceEngineToggle" onclick="toggleVoiceEngine()" style="color: #6ee7b7; border-color: rgba(110, 231, 183, 0.4);">
+        VOICE: NEURAL MISSION CONTROL
+      </button>
+      <!-- Tactical Radio Filter Toggle -->
+      <button class="btn-header" id="btnTacticalRadioToggle" onclick="toggleTacticalRadio()" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);">
+        RADIO FX: MIL-SPEC
+      </button>
+      <!-- Direct Audio Test Button -->
+      <button class="btn-header" id="btnTestVoice" onclick="testVoiceAudio()" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); font-weight: 700;">
+        🔊 TEST VOICE AUDIO
+      </button>
+      <button class="btn-header" id="btnAudioToggle" onclick="toggleAudio()">
+        AUDIO: ON
+      </button>
+      <div class="pill">
+        <div class="led-dot" id="wsLed"></div>
+        <span id="wsStatus">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Enterprise Fleet ROI & Safety Metrics Ribbon -->
+  <div class="roi-ribbon">
+    <div class="roi-tile">
+      <div class="roi-icon">🛡️</div>
+      <div>
+        <div class="roi-num" id="roiIntercepts" style="color: var(--alpha-cyan);">0</div>
+        <div class="roi-lbl">Safety Intercepts Engaged</div>
+      </div>
+    </div>
+
+    <div class="roi-tile">
+      <div class="roi-icon">⏱️</div>
+      <div>
+        <div class="roi-num" id="roiDowntime" style="color: #34d399;">0.0 hrs</div>
+        <div class="roi-lbl">Factory Downtime Prevented</div>
+      </div>
+    </div>
+
+    <div class="roi-tile">
+      <div class="roi-icon">🤖</div>
+      <div>
+        <div class="roi-num" id="roiInterventions" style="color: var(--bravo-amber);">38</div>
+        <div class="roi-lbl">Zero-Human Interventions</div>
+      </div>
+    </div>
+
+    <div class="roi-tile">
+      <div class="roi-icon">💰</div>
+      <div>
+        <div class="roi-num" id="roiSavings" style="color: #6ee7b7;">$0</div>
+        <div class="roi-lbl">Est. Plant Cost Savings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fleet Selector Bar -->
+  <div class="fleet-selector-bar">
+    <div class="fleet-tabs">
+      <div class="fleet-tab active-Alpha" id="tabAlpha" onclick="selectAgent('Alpha')">
+        <div class="tab-badge" style="background: var(--alpha-cyan); box-shadow: 0 0 6px var(--alpha-cyan);"></div>
+        <div style="display: flex; flex-direction: column; gap: 1px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--alpha-cyan);">AGV-Alpha (Priority 1)</div>
+          <div style="font-size: 10px; font-family: var(--font-mono); color: var(--text-secondary);" id="statsAlpha">Bat: 98% | 0.00 m/s</div>
+        </div>
+      </div>
+
+      <div class="fleet-tab" id="tabBravo" onclick="selectAgent('Bravo')">
+        <div class="tab-badge" style="background: var(--bravo-amber); box-shadow: 0 0 6px var(--bravo-amber);"></div>
+        <div style="display: flex; flex-direction: column; gap: 1px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--bravo-amber);">AGV-Bravo (Priority 2)</div>
+          <div style="font-size: 10px; font-family: var(--font-mono); color: var(--text-secondary);" id="statsBravo">Bat: 98% | 0.00 m/s</div>
+        </div>
+      </div>
+
+      <div class="fleet-tab" id="tabCharlie" onclick="selectAgent('Charlie')">
+        <div class="tab-badge" style="background: var(--charlie-purple); box-shadow: 0 0 6px var(--charlie-purple);"></div>
+        <div style="display: flex; flex-direction: column; gap: 1px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--charlie-purple);">AGV-Charlie (Priority 3)</div>
+          <div style="font-size: 10px; font-family: var(--font-mono); color: var(--text-secondary);" id="statsCharlie">Bat: 98% | 0.00 m/s</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 6px;">
+      <button class="btn" id="btnSlamToggle" onclick="toggleSlamLayer()">SLAM / FOG: ON</button>
+      <button class="btn" onclick="resetFleetDock()">Fleet Dock Reset</button>
+      <button class="btn btn-danger" onclick="triggerFleetEstop()">FLEET E-STOP</button>
+    </div>
+  </div>
+
+  <!-- Incident Scrubber Bar -->
+  <div class="replay-control-bar" id="replayControlBar">
+    <div style="background: var(--bravo-amber); color: #05080e; font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 4px;">INCIDENT REPLAY</div>
+    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+      <button class="btn" onclick="toggleReplayPlay()" id="btnReplayPlay">Play</button>
+      <button class="btn" onclick="stepReplay(-1)">◄</button>
+      <button class="btn" onclick="stepReplay(1)">►</button>
+      <input type="range" class="scrub-slider" id="replayScrubSlider" min="0" max="100" value="0" oninput="onScrubInput(this.value)" />
+      <span id="replayTimeLabel" style="font-family: var(--font-mono); font-size: 11px; color: var(--bravo-amber); min-width: 65px;">T - 0.0s</span>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn" onclick="setReplaySpeed(0.25)">0.25x</button>
+      <button class="btn" onclick="setReplaySpeed(0.5)">0.5x</button>
+      <button class="btn" onclick="setReplaySpeed(1.0)">1.0x</button>
+      <button class="btn btn-danger" onclick="exitReplayMode()">EXIT REPLAY</button>
+    </div>
+  </div>
+
+  <!-- Main View -->
+  <main>
+    <!-- Left Column: Arena & SLAM Grid -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+          Multi-Agent Spatial Grid SLAM & Deadlock Resolution
+        </div>
+        <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-tertiary);" id="bridgeStatusTag">
+          ROS 2 Node: Standby
+        </div>
+      </div>
+
+      <div class="arena-viewport">
+        <canvas id="arenaCanvas" width="800" height="800"></canvas>
+        <div class="arena-hud-tag" id="arenaHudTag">
+          ACTIVE: AGV-ALPHA | INTERSECTION MANAGER: ONLINE
+        </div>
+        <div class="slam-stat-badge" id="slamStatBadge">
+          SLAM DISCOVERY: 0.0% COVERAGE
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" onclick="triggerIncidentFreeze()">Snapshot Incident</button>
+          <button class="btn" onclick="clearTrails()">Clear Trails</button>
+          <a class="btn" href="/metrics" target="_blank" style="text-decoration: none; color: var(--alpha-cyan);">/metrics (OpenTelemetry)</a>
+        </div>
+        <button class="btn btn-danger" onclick="triggerTargetEstop()">E-STOP FOCUSED AGENT</button>
+      </div>
+
+      <!-- Audit Stream -->
+      <div class="card-header" style="margin-top: 2px;">
+        <div class="card-title" style="font-size: 11px; color: var(--text-secondary);">Enterprise Telemetry & Security Audit Stream</div>
+        <span style="font-size: 10px; color: var(--text-tertiary);">Live Operational Events</span>
+      </div>
+      <div class="audit-box" id="auditBox">
+        <div class="audit-entry">
+          <span class="audit-time">[00:00:00]</span>
+          <span class="badge-INFO">[BOOT] ApexMotion OS v3.0 Spatial Grid online. Intel NPU target engaged.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Focused Perception, Chaos Engineering, Controls -->
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+
+      <!-- Focused Perception Feed -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="visionTitle">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            AGV-Alpha Neural Vision & Peer Detection
+          </div>
+          <span id="riskPill" style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #10b981;">
+            ZONE: SAFE
+          </span>
+        </div>
+
+        <div class="vision-container">
+          <img id="visionFeedImg" alt="Edge Feed" src="" />
+          <div class="npu-watermark" id="npuWatermark">Intel NPU: 4.1ms (INT8)</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary);">
+          <div>Time-To-Collision: <span id="ttcVal" style="color: #fff;">-- s</span></div>
+          <div>Closest Hazard: <span id="hazardVal" style="color: #fff;">--</span> (<span id="hazardDist">-- m</span>)</div>
+        </div>
+      </div>
+
+      <!-- Chaos Engineering & Hardware Failure Injection Panel -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" style="color: #f87171;">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h8l-2 8 10-12h-8l2-8z"/></svg>
+            Chaos Engineering & Fault Injection (Judge Demo)
+          </div>
+          <span id="chaosStatusBadge" style="font-size: 10px; font-family: var(--font-mono); color: var(--color-safe);">FAULTS: NONE</span>
+        </div>
+
+        <div class="chaos-panel">
+          <div style="font-size: 11px; color: var(--text-secondary);">Inject hardware faults to verify autonomous resilience:</div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-chaos" onclick="injectChaosFault('SENSOR_DROPOUT')">⚡ Blind Camera Dropout</button>
+            <button class="btn btn-chaos" onclick="injectChaosFault('LATENCY_SPIKE')">⚡ Latency Spike (250ms)</button>
+            <button class="btn" onclick="injectChaosFault('CLEAR')">✓ Clear Faults</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Command Planner -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            Multi-Agent Command Dispatcher
+          </div>
+          <span style="font-size: 10px; color: var(--alpha-cyan); font-family: var(--font-mono);" id="targetAgentPill">Target: AGV-Alpha</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="btn" style="background: linear-gradient(135deg, #0071c5, #00f0ff); color: #05080e; font-weight: 700;" onclick="toggleVoice()" id="micBtn">Voice Mic</button>
+            <input type="text" class="cmd-input" id="cmdInput" placeholder='Try: "Bravo, patrol between dock and pallet 3 times"' onkeydown="if(event.key==='Enter') executeCommand()" />
+            <button class="btn" onclick="executeCommand()">Dispatch</button>
+          </div>
+
+          <div class="macro-chips">
+            <div class="macro-chip" onclick="dispatchMacro('Alpha, patrol between dock and pallet 3 times')">"Alpha: Patrol Dock <-> Pallet (3x)"</div>
+            <div class="macro-chip" onclick="dispatchMacro('Bravo, patrol between sorting and receiving 2 times')">"Bravo: Sorting <-> Receiving"</div>
+            <div class="macro-chip" onclick="dispatchMacro('Charlie, abort and return to base')">"Charlie: Return to Base"</div>
+            <div class="macro-chip" onclick="dispatchMacro('Alpha, scan perimeter')">"Alpha: 360° Scan"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Focused Agent Teleoperation -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zm7.5-7.5l-3 3 3 3H22V9h-5.5z"/></svg>
+            Focused Teleoperation Override (WASD)
+          </div>
+          <span style="font-size: 10px; color: var(--text-tertiary);" id="bridgeModePill">Mode: Sim</span>
+        </div>
+
+        <div class="dpad-container">
+          <div class="dpad-keys">
+            <div></div>
+            <button class="dpad-k" onmousedown="setTeleop(0.65, 0.0)" onmouseup="stopTeleop()">W</button>
+            <div></div>
+            <button class="dpad-k" onmousedown="setTeleop(0.0, 1.0)" onmouseup="stopTeleop()">A</button>
+            <button class="dpad-k" onclick="stopTeleop()" style="color: var(--color-danger);">■</button>
+            <button class="dpad-k" onmousedown="setTeleop(0.0, -1.0)" onmouseup="stopTeleop()">D</button>
+            <div></div>
+            <button class="dpad-k" onmousedown="setTeleop(-0.5, 0.0)" onmouseup="stopTeleop()">S</button>
+            <div></div>
+          </div>
+
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+            <div><kbd style="color: #fff;">W / S</kbd> Linear Acceleration</div>
+            <div><kbd style="color: #fff;">A / D</kbd> Angular Steer</div>
+            <div><kbd style="color: var(--color-danger);">SPACE</kbd> Focused Agent E-Stop</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Audio Context & Autoplay Unlocker
+    let audioCtx = null;
+    let audioEnabled = true;
+    let audioUnlocked = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().then(() => {
+          console.log("[AudioEngine] AudioContext resumed successfully. State:", audioCtx.state);
+        }).catch(err => console.warn("[AudioEngine] AudioContext resume failed:", err));
+      }
+    }
+
+    // Global unlock handler: trigger on very first click/tap anywhere on page
+    function unlockAudioOnFirstInteraction() {
+      if (audioUnlocked) return;
+      initAudio();
+
+      // Play silent buffer to unlock mobile/Safari/Chrome audio policy
+      if (audioCtx) {
+        try {
+          const silentBuf = audioCtx.createBuffer(1, 1, 22050);
+          const src = audioCtx.createBufferSource();
+          src.buffer = silentBuf;
+          src.connect(audioCtx.destination);
+          src.start(0);
+        } catch (_) {}
+      }
+
+      // Unlock HTMLAudioElement playback policy
+      try {
+        const unlockAudio = new Audio();
+        unlockAudio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
+        unlockAudio.volume = 0.01;
+        unlockAudio.play().then(() => {
+          unlockAudio.pause();
+          console.log("[AudioEngine] HTML5 Audio autoplay policy unlocked.");
+        }).catch(() => {});
+      } catch (_) {}
+
+      // Prime speechSynthesis engine
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.getVoices();
+        } catch (_) {}
+      }
+
+      audioUnlocked = true;
+      console.log("[AudioEngine] Global audio unlocked by user gesture.");
+      window.removeEventListener("click", unlockAudioOnFirstInteraction);
+      window.removeEventListener("keydown", unlockAudioOnFirstInteraction);
+      window.removeEventListener("touchstart", unlockAudioOnFirstInteraction);
+    }
+
+    window.addEventListener("click", unlockAudioOnFirstInteraction, { once: true });
+    window.addEventListener("keydown", unlockAudioOnFirstInteraction, { once: true });
+    window.addEventListener("touchstart", unlockAudioOnFirstInteraction, { once: true });
+
+    function playTone(type) {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === "chirp") {
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1320, now + 0.07);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === "pop") {
+          osc.frequency.setValueAtTime(600, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === "alarm") {
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.setValueAtTime(440, now + 0.08);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        }
+      } catch (e) {
+        console.warn("[AudioEngine] Tone synthesis error:", e);
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById("btnAudioToggle").textContent = audioEnabled ? "AUDIO: ON" : "AUDIO: MUTED";
+      console.log("[AudioEngine] Master audio toggled:", audioEnabled ? "ENABLED" : "MUTED");
+    }
+
+    // Voice Engine Mode: "NEURAL_STREAM" (Speechmatics/Backend Neural) vs "NATIVE_SPEECH" (Web Speech Neural Voice)
+    let currentVoiceEngine = "NEURAL_STREAM"; 
+    let preferredNeuralVoice = null;
+    let availableVoices = [];
+
+    function initVoiceSelection() {
+      if (!('speechSynthesis' in window)) {
+        console.warn("[AudioEngine] window.speechSynthesis not supported on this browser.");
+        return;
+      }
+
+      function updateVoiceList() {
+        availableVoices = window.speechSynthesis.getVoices();
+        console.log(`[AudioEngine] Loaded ${availableVoices.length} client voices.`);
+        if (!availableVoices.length) return;
+
+        // Prioritize ultra-natural high-fidelity neural mission voices
+        const priorityPatterns = [
+          /Microsoft Christopher Online \(Natural\)/i,
+          /Google US English/i,
+          /Microsoft Guy Online \(Natural\)/i,
+          /Microsoft David/i,
+          /Microsoft Mark/i,
+          /Samantha \(Enhanced\)/i,
+          /Daniel \(Enhanced\)/i,
+          /Microsoft Jenny Online \(Natural\)/i,
+          /Google UK English Male/i,
+          /en-US.*natural/i,
+          /en-US.*neural/i,
+          /en_US/i,
+          /en-US/i,
+          /en/i
+        ];
+
+        for (const pat of priorityPatterns) {
+          const match = availableVoices.find(v => pat.test(v.name) || pat.test(v.voiceURI) || pat.test(v.lang));
+          if (match) {
+            preferredNeuralVoice = match;
+            break;
+          }
+        }
+
+        if (!preferredNeuralVoice && availableVoices.length > 0) {
+          preferredNeuralVoice = availableVoices[0];
+        }
+
+        if (preferredNeuralVoice) {
+          console.log(`[AudioEngine] Selected preferred voice: "${preferredNeuralVoice.name}" (${preferredNeuralVoice.lang})`);
+        }
+      }
+
+      updateVoiceList();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = updateVoiceList;
+      }
+    }
+
+    function toggleVoiceEngine() {
+      currentVoiceEngine = (currentVoiceEngine === "NEURAL_STREAM") ? "NATIVE_SPEECH" : "NEURAL_STREAM";
+      const btn = document.getElementById("btnVoiceEngineToggle");
+      if (currentVoiceEngine === "NEURAL_STREAM") {
+        btn.textContent = "VOICE: NEURAL MISSION CONTROL";
+        btn.style.color = "#6ee7b7";
+        btn.style.borderColor = "rgba(110, 231, 183, 0.4)";
+        logAuditUI("Voice Engine: Neural Mission Control (Streaming PCM Audio).", "INFO");
+      } else {
+        btn.textContent = "VOICE: CLIENT NATIVE (NATURAL)";
+        btn.style.color = "#00f0ff";
+        btn.style.borderColor = "rgba(0, 240, 255, 0.4)";
+        logAuditUI("Voice Engine: Client Native Neural Speech (pitch=1.0, rate=0.95).", "INFO");
+      }
+      playRadioChirp("preamble");
+    }
+
+    // Radio Transmission Chirp / Squelch Synthesizer
+    function playRadioChirp(type = "preamble") {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === "preamble") {
+          // Sharp radio mic-keyed chirp: rapid high-to-mid sweep
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(1200, now);
+          osc.frequency.exponentialRampToValueAtTime(2200, now + 0.035);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+          osc.start(now);
+          osc.stop(now + 0.045);
+        } else {
+          // Mic-release squelch / static burst: mid-to-low chirp
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(2000, now);
+          osc.frequency.exponentialRampToValueAtTime(800, now + 0.035);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        }
+      } catch (err) {
+        console.warn("[AudioEngine] Radio chirp error:", err);
+      }
+    }
+
+    // Tactical Radio Effects & Filter Node Chain
+    let tacticalRadioFxEnabled = true;
+
+    function toggleTacticalRadio() {
+      tacticalRadioFxEnabled = !tacticalRadioFxEnabled;
+      const btn = document.getElementById("btnTacticalRadioToggle");
+      if (tacticalRadioFxEnabled) {
+        btn.textContent = "RADIO FX: MIL-SPEC";
+        btn.style.color = "#f59e0b";
+        btn.style.borderColor = "rgba(245, 158, 11, 0.4)";
+        logAuditUI("Tactical Radio FX: Bandpass Intercom Filter (300Hz-3.4kHz) + Squelch active.", "INFO");
+      } else {
+        btn.textContent = "RADIO FX: CLEAN STUDIO";
+        btn.style.color = "#94a3b8";
+        btn.style.borderColor = "rgba(255, 255, 255, 0.15)";
+        logAuditUI("Tactical Radio FX: Bypass (Clean Unfiltered Studio Audio).", "INFO");
+      }
+      playRadioChirp("preamble");
+    }
+
+    // Play base64 WAV stream with tactical biquad bandpass filter and authentic squelch
+    function playNeuralAudioBuffer(base64Wav, fallbackText = "") {
+      if (!audioEnabled) return;
+      if (!base64Wav) {
+        console.warn("[AudioEngine] No audio buffer provided, falling back to speech synthesis.");
+        speakClientSpeech(fallbackText);
+        return;
+      }
+
+      console.log(`[AudioEngine] Playing studio audio buffer (${base64Wav.length} chars). Tactical FX: ${tacticalRadioFxEnabled}`);
+      initAudio();
+
+      if (!audioCtx) {
+        // Fallback to simple HTML5 audio if Web Audio is unsupported
+        try {
+          const audio = new Audio("data:audio/wav;base64," + base64Wav);
+          audio.volume = 1.0;
+          audio.play();
+        } catch (_) {
+          speakClientSpeech(fallbackText);
+        }
+        return;
+      }
+
+      try {
+        const byteCharacters = atob(base64Wav);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        audioCtx.decodeAudioData(byteArray.buffer.slice(0), (audioBuffer) => {
+          const now = audioCtx.currentTime;
+
+          // 1. Play Authentic Preamble Mic-Key Squelch Chirp
+          playRadioChirp("preamble");
+
+          const source = audioCtx.createBufferSource();
+          source.buffer = audioBuffer;
+
+          if (tacticalRadioFxEnabled) {
+            // Military-grade bandpass / walkie-talkie intercom acoustic chain
+            // Highpass filter cuts sub-bass rumble (<380 Hz)
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = "highpass";
+            highpass.frequency.setValueAtTime(380, now);
+            highpass.Q.setValueAtTime(1.2, now);
+
+            // Lowpass filter limits upper frequency ceiling (<3400 Hz standard telecom/military intercom)
+            const lowpass = audioCtx.createBiquadFilter();
+            lowpass.type = "lowpass";
+            lowpass.frequency.setValueAtTime(3400, now);
+            lowpass.Q.setValueAtTime(1.5, now);
+
+            // Peaking filter adds authoritative radio presence at 1.8kHz
+            const presence = audioCtx.createBiquadFilter();
+            presence.type = "peaking";
+            presence.frequency.setValueAtTime(1800, now);
+            presence.gain.setValueAtTime(4.0, now);
+            presence.Q.setValueAtTime(1.0, now);
+
+            // Subtle industrial compression / gain boost
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(1.35, now);
+
+            source.connect(highpass);
+            highpass.connect(presence);
+            presence.connect(lowpass);
+            lowpass.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+          } else {
+            // Clean Studio Direct Feed
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(1.0, now);
+            source.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+          }
+
+          // Delay audio start slightly (40ms) to follow preamble chirp
+          const speechStartTime = now + 0.04;
+          source.start(speechStartTime);
+
+          source.onended = () => {
+            // Play authentic postamble channel release squelch
+            playRadioChirp("postamble");
+            console.log("[AudioEngine] Studio buffer playback completed.");
+          };
+
+          console.log("[AudioEngine] Studio buffer playback active with tactical biquad filters.");
+        }, (decodeErr) => {
+          console.warn("[AudioEngine] decodeAudioData failed, falling back to speech synthesis:", decodeErr);
+          speakClientSpeech(fallbackText);
+        });
+      } catch (err) {
+        console.warn("[AudioEngine] Playback error, falling back:", err);
+        speakClientSpeech(fallbackText);
+      }
+    }
+
+    let lastSpokenFeedback = "";
+    function speakFeedback(text, audioBase64 = null) {
+      if (!audioEnabled || !text) return;
+      lastSpokenFeedback = text;
+      console.log(`[AudioEngine] speakFeedback triggered. Engine: ${currentVoiceEngine}, Text: "${text}"`);
+
+      if (currentVoiceEngine === "NEURAL_STREAM" && audioBase64) {
+        playNeuralAudioBuffer(audioBase64, text);
+      } else {
+        speakClientSpeech(text);
+      }
+    }
+
+    function speakClientSpeech(text) {
+      if (!audioEnabled || !text) return;
+      if (!('speechSynthesis' in window)) {
+        console.warn("[AudioEngine] Speech synthesis API not available.");
+        return;
+      }
+
+      console.log(`[AudioEngine] Executing browser SpeechSynthesis: "${text}"`);
+      try {
+        // Stop any pending speech
+        window.speechSynthesis.cancel();
+        playRadioChirp("preamble");
+
+        setTimeout(() => {
+          const utter = new SpeechSynthesisUtterance(text);
+          if (!preferredNeuralVoice && availableVoices.length) {
+            initVoiceSelection();
+          }
+          if (preferredNeuralVoice) {
+            utter.voice = preferredNeuralVoice;
+          }
+          utter.rate = 0.95;  // Authoritative mission-control cadence
+          utter.pitch = 1.0;  // Natural pitch
+          utter.volume = 1.0; // Full volume
+
+          utter.onstart = () => {
+            console.log("[AudioEngine] SpeechSynthesisUtterance started speaking.");
+          };
+          utter.onend = () => {
+            console.log("[AudioEngine] SpeechSynthesisUtterance completed.");
+            playRadioChirp("postamble");
+          };
+          utter.onerror = (e) => {
+            console.warn("[AudioEngine] SpeechSynthesisUtterance error:", e);
+            playRadioChirp("postamble");
+          };
+
+          window.speechSynthesis.speak(utter);
+        }, 50);
+      } catch (err) {
+        console.error("[AudioEngine] speakClientSpeech fatal error:", err);
+      }
+    }
+
+    // Direct UI Audio Test Button & Studio Bank Tester
+    let studioTestIndex = 0;
+    const STUDIO_TEST_PHRASES = [
+      "system nominal",
+      "alpha rtb dock",
+      "bravo hazard yield",
+      "safety intercept engaged",
+      "watchdog alert",
+      "alpha move forward"
+    ];
+
+    async function testVoiceAudio() {
+      console.log("[AudioEngine] Manual 'Test Voice Audio' triggered by user.");
+      unlockAudioOnFirstInteraction();
+      playTone("chirp");
+
+      const phrase = STUDIO_TEST_PHRASES[studioTestIndex % STUDIO_TEST_PHRASES.length];
+      studioTestIndex++;
+
+      logAuditUI(`Running Voice Diagnostic Test [${phrase.toUpperCase()}]...`, "INFO");
+
+      if (currentVoiceEngine === "NEURAL_STREAM") {
+        try {
+          const res = await fetch("/api/tts/synthesize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: phrase, pitch_hz: 115.0, include_chirp: true })
+          });
+          const data = await res.json();
+          if (data && data.audio_base64) {
+            console.log(`[AudioEngine] Studio audio clip received (${data.engine}) in ${data.latency_ms}ms: "${data.text}"`);
+            playNeuralAudioBuffer(data.audio_base64, data.text);
+            logAuditUI(`Playing [${data.engine}]: "${data.text}"`, "DISPATCH");
+            return;
+          }
+        } catch (err) {
+          console.warn("[AudioEngine] Backend TTS fetch failed, falling back to client speech:", err);
+        }
+      }
+
+      // Fallback or native mode
+      speakClientSpeech(phrase);
+      logAuditUI(`Client Native Speech executed: "${phrase}"`, "INFO");
+    }
+
+    // State Variables
+    let ws = null;
+    let focusedAgentId = "Alpha";
+    let currentFleetData = null;
+    let isSlamLayerActive = true;
+    let currentBridgeMode = "SIMULATION";
+    let currentHwProfile = "INTEL_NPU"; // "INTEL_NPU" vs "CPU_FP32"
+
+    // Replay State
+    let isReplayMode = false;
+    let replayFrames = [];
+    let replayIndex = 0;
+    let replayTimer = null;
+    let replaySpeed = 0.5;
+    let isReplayPlaying = false;
+
+    // DOM Elements
+    const canvas = document.getElementById("arenaCanvas");
+    const ctx = canvas.getContext("2d");
+    const wsLed = document.getElementById("wsLed");
+    const wsStatus = document.getElementById("wsStatus");
+    const arenaHudTag = document.getElementById("arenaHudTag");
+    const slamStatBadge = document.getElementById("slamStatBadge");
+    const btnSlamToggle = document.getElementById("btnSlamToggle");
+    const btnBridgeMode = document.getElementById("btnBridgeMode");
+    const btnHwProfile = document.getElementById("btnHwProfile");
+    const bridgeStatusTag = document.getElementById("bridgeStatusTag");
+    const bridgeModePill = document.getElementById("bridgeModePill");
+    const visionTitle = document.getElementById("visionTitle");
+    const visionFeedImg = document.getElementById("visionFeedImg");
+    const npuWatermark = document.getElementById("npuWatermark");
+    const riskPill = document.getElementById("riskPill");
+    const ttcVal = document.getElementById("ttcVal");
+    const hazardVal = document.getElementById("hazardVal");
+    const hazardDist = document.getElementById("hazardDist");
+    const targetAgentPill = document.getElementById("targetAgentPill");
+    const cmdInput = document.getElementById("cmdInput");
+    const auditBox = document.getElementById("auditBox");
+    const replayControlBar = document.getElementById("replayControlBar");
+    const replayScrubSlider = document.getElementById("replayScrubSlider");
+    const replayTimeLabel = document.getElementById("replayTimeLabel");
+    const btnReplayPlay = document.getElementById("btnReplayPlay");
+    const chaosStatusBadge = document.getElementById("chaosStatusBadge");
+
+    // ROI DOM
+    const roiIntercepts = document.getElementById("roiIntercepts");
+    const roiDowntime = document.getElementById("roiDowntime");
+    const roiInterventions = document.getElementById("roiInterventions");
+    const roiSavings = document.getElementById("roiSavings");
+
+    const AGENT_COLORS = {
+      "Alpha": "#00f0ff",
+      "Bravo": "#f59e0b",
+      "Charlie": "#c084fc",
+    };
+
+    let lastLoggedTimestamp = 0;
+    function logAuditUI(msg, severity = "INFO") {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      const entry = document.createElement("div");
+      entry.className = "audit-entry";
+      entry.innerHTML = `<span class="audit-time">[${timeStr}]</span> <span class="badge-${severity}">[${severity}] ${msg}</span>`;
+      auditBox.appendChild(entry);
+      auditBox.scrollTop = auditBox.scrollHeight;
+    }
+
+    // WebSocket
+    function initWebSocket() {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${window.location.host}/ws/telemetry`;
+
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        wsLed.classList.add("online");
+        wsStatus.textContent = "Fleet Gateway Synced (50Hz)";
+        startHeartbeat();
+      };
+
+      ws.onclose = () => {
+        wsLed.classList.remove("online");
+        wsStatus.textContent = "Offline. Reconnecting...";
+        setTimeout(initWebSocket, 2000);
+      };
+
+      ws.onerror = (e) => console.error("WS error:", e);
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "command_ack") {
+          playTone("chirp");
+          if (data.verbal_feedback) {
+            speakFeedback(data.verbal_feedback, data.audio_base64);
+          }
+          return;
+        }
+
+        if (data.type === "incident_created") {
+          playTone("alarm");
+          return;
+        }
+
+        if (data.type === "incident_replay_data") {
+          loadIncidentReplay(data.incident);
+          return;
+        }
+
+        if (!isReplayMode) {
+          currentFleetData = data;
+          updateFleetUI(data);
+          renderArena(data);
+        }
+      };
+    }
+
+    function startHeartbeat() {
+      setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: "heartbeat",
+            client_time: Date.now() / 1000
+          }));
+        }
+      }, 500);
+    }
+
+    // Agent Selection
+    function selectAgent(agentId) {
+      focusedAgentId = agentId;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "select_agent", agent_id: agentId }));
+      }
+
+      ["Alpha", "Bravo", "Charlie"].forEach(id => {
+        const el = document.getElementById(`tab${id}`);
+        el.className = `fleet-tab ${id === agentId ? `active-${id}` : ''}`;
+      });
+
+      targetAgentPill.textContent = `Target: AGV-${agentId}`;
+      visionTitle.innerHTML = `<svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> AGV-${agentId} Neural Vision & Peer Detection`;
+      playTone("pop");
+    }
+
+    // Intel NPU Benchmark Switch
+    function toggleHardwareProfile() {
+      currentHwProfile = currentHwProfile === "INTEL_NPU" ? "CPU_FP32" : "INTEL_NPU";
+      const isNpu = currentHwProfile === "INTEL_NPU";
+
+      btnHwProfile.textContent = isNpu ? "ACCEL: Intel NPU (INT8: 4.1ms)" : "ACCEL: Host CPU (FP32: 39.5ms)";
+      btnHwProfile.className = `btn-header ${isNpu ? 'btn-npu-toggle' : ''}`;
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "set_hardware_target", target: currentHwProfile }));
+      }
+      playTone("chirp");
+    }
+
+    // Chaos Engineering Injection
+    function injectChaosFault(faultType) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "inject_chaos", fault: faultType }));
+      }
+
+      if (faultType === "CLEAR") {
+        chaosStatusBadge.textContent = "FAULTS: NONE";
+        chaosStatusBadge.style.color = "var(--color-safe)";
+        playTone("chirp");
+      } else {
+        chaosStatusBadge.textContent = `FAULT: ${faultType}`;
+        chaosStatusBadge.style.color = "var(--color-danger)";
+        playTone("alarm");
+      }
+    }
+
+    // ROS 2 Hardware Bridge Toggle
+    function toggleRos2Bridge() {
+      currentBridgeMode = currentBridgeMode === "SIMULATION" ? "ROS2_BRIDGE" : "SIMULATION";
+      const isRos2 = currentBridgeMode === "ROS2_BRIDGE";
+
+      btnBridgeMode.textContent = isRos2 ? "MODE: ROS 2 HARDWARE BRIDGE" : "MODE: SIMULATION";
+      btnBridgeMode.className = `btn-header btn-bridge-mode ${isRos2 ? 'ros2-active' : ''}`;
+      bridgeStatusTag.textContent = isRos2 ? "ROS 2: Active /cmd_vel Bridge (3.8ms)" : "ROS 2 Node: Standby";
+      bridgeModePill.textContent = isRos2 ? "Mode: ROS 2 Bridge" : "Mode: Sim";
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "set_bridge_mode", mode: currentBridgeMode }));
+      }
+      playTone("chirp");
+    }
+
+    function toggleSlamLayer() {
+      isSlamLayerActive = !isSlamLayerActive;
+      btnSlamToggle.textContent = isSlamLayerActive ? "SLAM / FOG: ON" : "SLAM / FOG: OFF";
+      btnSlamToggle.classList.toggle("active", isSlamLayerActive);
+      playTone("pop");
+    }
+
+    // UI Updates
+    function updateFleetUI(data) {
+      if (!data || !data.agents) return;
+      const agents = data.agents;
+
+      for (const [id, ag] of Object.entries(agents)) {
+        const statsEl = document.getElementById(`stats${id}`);
+        if (statsEl) {
+          statsEl.textContent = `Bat: ${ag.battery.toFixed(1)}% | ${ag.linear_velocity.toFixed(2)} m/s`;
+        }
+      }
+
+      if (data.slam) {
+        slamStatBadge.textContent = `SLAM DISCOVERY: ${data.slam.exploration_pct}% COVERAGE`;
+      }
+
+      // ROI Updates
+      if (data.roi_metrics) {
+        const roi = data.roi_metrics;
+        roiIntercepts.textContent = roi.safety_intercepts_total;
+        roiDowntime.textContent = `${roi.downtime_hours_prevented.toFixed(1)} hrs`;
+        roiInterventions.textContent = roi.zero_human_interventions;
+        roiSavings.textContent = `$${roi.estimated_cost_savings_usd.toLocaleString()}`;
+      }
+
+      const focused = agents[focusedAgentId];
+      if (focused) {
+        arenaHudTag.textContent = `ACTIVE: ${focused.callsign} | STATUS: ${focused.status} | MACRO: ${focused.macro_progress}`;
+
+        if (focused.vision && focused.vision.frame) {
+          visionFeedImg.src = focused.vision.frame;
+        }
+        if (focused.vision && focused.vision.perf) {
+          const p = focused.vision.perf;
+          npuWatermark.textContent = `${p.hardware_profile === 'INTEL_NPU' ? 'Intel NPU INT8' : 'Host CPU FP32'}: ${p.inference_ms}ms (${p.power_watts}W)`;
+        }
+
+        if (focused.collision) {
+          const col = focused.collision;
+          riskPill.textContent = `ZONE: ${col.risk_level}`;
+          riskPill.style.background = col.risk_color + "33";
+          riskPill.style.color = col.risk_color;
+
+          ttcVal.textContent = col.ttc_seconds > 50 ? "SAFE" : `${col.ttc_seconds.toFixed(1)}s`;
+          hazardVal.textContent = col.closest_target;
+          hazardDist.textContent = `${col.min_forward_distance_m}m`;
+        }
+      }
+
+      if (data.audit_events && data.audit_events.length) {
+        const latest = data.audit_events[data.audit_events.length - 1];
+        if (latest && latest.timestamp > lastLoggedTimestamp) {
+          lastLoggedTimestamp = latest.timestamp;
+          logAuditUI(latest.message, latest.type);
+        }
+      }
+    }
+
+    // Render Canvas
+    function renderArena(data) {
+      if (!data) return;
+      const w = canvas.width;
+      const h = canvas.height;
+      const arenaW = data.arena.width;
+      const arenaH = data.arena.height;
+
+      const scaleX = w / arenaW;
+      const scaleY = h / arenaH;
+
+      ctx.fillStyle = "#06090e";
+      ctx.fillRect(0, 0, w, h);
+
+      // 1. Dynamic SLAM Occupancy Grid
+      if (isSlamLayerActive && data.slam && data.slam.grid_data) {
+        const grid = data.slam.grid_data;
+        const rows = data.slam.rows;
+        const cols = data.slam.cols;
+        const cellW = w / cols;
+        const cellH = h / rows;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const val = grid[r][c];
+            if (val === 0) {
+              ctx.fillStyle = "rgba(4, 7, 12, 0.85)";
+              ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
+            } else if (val === 1) {
+              ctx.fillStyle = "rgba(0, 180, 255, 0.035)";
+              ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
+              ctx.strokeStyle = "rgba(0, 240, 255, 0.05)";
+              ctx.strokeRect(c * cellW, r * cellH, cellW, cellH);
+            } else if (val === 2) {
+              ctx.fillStyle = "rgba(239, 68, 68, 0.4)";
+              ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
+            }
+          }
+        }
+      }
+
+      // 2. Obstacles
+      if (data.arena.obstacles) {
+        data.arena.obstacles.forEach((obs) => {
+          const ox = obs.x * scaleX;
+          const oy = obs.y * scaleY;
+          const r = obs.radius * scaleX;
+
+          ctx.beginPath();
+          ctx.arc(ox, oy, (obs.radius + 0.45) * scaleX, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.25)";
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([3, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.beginPath();
+          ctx.arc(ox, oy, r, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(239, 68, 68, 0.75)";
+          ctx.fill();
+          ctx.strokeStyle = "#ef4444";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = "#cbd5e1";
+          ctx.font = "11px SF Mono, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(obs.label, ox, oy - r - 8);
+        });
+      }
+
+      // 3. Inter-Agent Links & Deadlock Detours
+      if (data.interagent_links && data.agents) {
+        data.interagent_links.forEach(link => {
+          const agA = data.agents[link.agent_a];
+          const agB = data.agents[link.agent_b];
+          if (agA && agB) {
+            const x1 = agA.x * scaleX;
+            const y1 = agA.y * scaleY;
+            const x2 = agB.x * scaleX;
+            const y2 = agB.y * scaleY;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+
+            if (link.status === "CRITICAL_COLLISION") {
+              ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
+              ctx.lineWidth = 2.5;
+              ctx.setLineDash([4, 4]);
+            } else if (link.status === "MUTUAL_PROXIMITY_YIELD") {
+              ctx.strokeStyle = "rgba(245, 158, 11, 0.8)";
+              ctx.lineWidth = 2;
+              ctx.setLineDash([5, 5]);
+            } else {
+              ctx.strokeStyle = "rgba(0, 240, 255, 0.15)";
+              ctx.lineWidth = 1;
+              ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            const mx = (x1 + x2) * 0.5;
+            const my = (y1 + y2) * 0.5;
+            ctx.fillStyle = link.status === "CRITICAL_COLLISION" ? "#ef4444" : (link.status === "MUTUAL_PROXIMITY_YIELD" ? "#f59e0b" : "#64748b");
+            ctx.font = "10px SF Mono, monospace";
+            ctx.fillText(`${link.distance_m}m`, mx, my - 4);
+          }
+        });
+      }
+
+      // 4. Render All Agents
+      if (data.agents) {
+        for (const [id, ag] of Object.entries(data.agents)) {
+          const rx = ag.x * scaleX;
+          const ry = ag.y * scaleY;
+          const color = AGENT_COLORS[id] || "#00f0ff";
+          const isFocused = id === focusedAgentId;
+
+          // Trail
+          if (ag.trail && ag.trail.length > 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = color + "55";
+            ctx.lineWidth = 1.8;
+            ag.trail.forEach((pt, i) => {
+              const px = pt[0] * scaleX;
+              const py = pt[1] * scaleY;
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            });
+            ctx.stroke();
+          }
+
+          // Lateral Yield Detour Vector
+          if (ag.yield_detour) {
+            const dyX = ag.yield_detour[0] * scaleX;
+            const dyY = ag.yield_detour[1] * scaleY;
+
+            ctx.beginPath();
+            ctx.moveTo(rx, ry);
+            ctx.lineTo(dyX, dyY);
+            ctx.strokeStyle = "#f59e0b";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.arc(dyX, dyY, 6, 0, Math.PI * 2);
+            ctx.fillStyle = "#f59e0b";
+            ctx.fill();
+            ctx.fillStyle = "#f59e0b";
+            ctx.font = "10px SF Mono, monospace";
+            ctx.fillText("YIELD DETOUR", dyX, dyY - 8);
+          }
+
+          // LiDAR
+          if (isFocused && ag.lidar) {
+            ag.lidar.forEach(ray => {
+              const hx = ray.hit_x * scaleX;
+              const hy = ray.hit_y * scaleY;
+              ctx.beginPath();
+              ctx.moveTo(rx, ry);
+              ctx.lineTo(hx, hy);
+              ctx.strokeStyle = ray.critical ? "rgba(239, 68, 68, 0.65)" : "rgba(0, 240, 255, 0.18)";
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            });
+          }
+
+          // Waypoint
+          if (ag.target_waypoint) {
+            const tx = ag.target_waypoint.x * scaleX;
+            const ty = ag.target_waypoint.y * scaleY;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(tx, ty, 12, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.font = "10px SF Mono, monospace";
+            ctx.fillText(ag.target_waypoint.name || id, tx, ty + 22);
+          }
+
+          // Body
+          const robotRadius = 0.35 * scaleX;
+          ctx.save();
+          ctx.translate(rx, ry);
+          ctx.rotate(ag.theta);
+
+          if (isFocused) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 16;
+          }
+
+          ctx.beginPath();
+          ctx.arc(0, 0, robotRadius, 0, Math.PI * 2);
+          ctx.fillStyle = isFocused ? color : color + "aa";
+          ctx.fill();
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = isFocused ? 2.5 : 1.5;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Pointer
+          ctx.beginPath();
+          ctx.moveTo(robotRadius * 0.2, -robotRadius * 0.45);
+          ctx.lineTo(robotRadius * 0.85, 0);
+          ctx.lineTo(robotRadius * 0.2, robotRadius * 0.45);
+          ctx.closePath();
+          ctx.fillStyle = "#ffffff";
+          ctx.fill();
+
+          ctx.restore();
+
+          // Label
+          ctx.fillStyle = color;
+          ctx.font = isFocused ? "bold 12px SF Mono, monospace" : "11px SF Mono, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(`${ag.callsign} ${ag.yielding ? '[YIELD]' : ''}`, rx, ry - robotRadius - 6);
+        }
+      }
+    }
+
+    // Waypoint Click
+    canvas.addEventListener("click", (e) => {
+      if (isReplayMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const clickPxX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const clickPxY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      const targetX = (clickPxX / canvas.width) * 10.0;
+      const targetY = (clickPxY / canvas.height) * 10.0;
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: "set_waypoint",
+          agent_id: focusedAgentId,
+          x: targetX,
+          y: targetY
+        }));
+        playTone("pop");
+      }
+    });
+
+    // Commands
+    function executeCommand() {
+      const val = cmdInput.value.trim();
+      if (!val) return;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: "voice_command",
+          text: val,
+          target_agent: focusedAgentId
+        }));
+        playTone("chirp");
+        cmdInput.value = "";
+      }
+    }
+
+    function dispatchMacro(text) {
+      cmdInput.value = text;
+      executeCommand();
+    }
+
+    function triggerTargetEstop() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: "emergency_stop",
+          agent_id: focusedAgentId
+        }));
+        playTone("alarm");
+      }
+    }
+
+    function triggerFleetEstop() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "fleet_estop" }));
+        playTone("alarm");
+      }
+    }
+
+    function resetFleetDock() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        fetch("/api/command/fleet_reset", { method: "POST" });
+        playTone("chirp");
+      }
+    }
+
+    function clearTrails() {
+      if (currentFleetData && currentFleetData.agents) {
+        for (const ag of Object.values(currentFleetData.agents)) ag.trail = [];
+      }
+    }
+
+    function triggerIncidentFreeze() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "trigger_incident_freeze" }));
+        playTone("alarm");
+      }
+    }
+
+    // Replay
+    function requestLatestIncidentReplay() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "fetch_incident_replay" }));
+      }
+    }
+
+    function loadIncidentReplay(incident) {
+      if (!incident || !incident.frames || !incident.frames.length) return;
+      isReplayMode = true;
+      replayFrames = incident.frames;
+      replayIndex = 0;
+      replayControlBar.classList.add("active");
+      replayScrubSlider.max = replayFrames.length - 1;
+      replayScrubSlider.value = 0;
+      playTone("pop");
+      startReplayLoop();
+    }
+
+    function startReplayLoop() {
+      clearInterval(replayTimer);
+      isReplayPlaying = true;
+      btnReplayPlay.textContent = "Pause";
+
+      replayTimer = setInterval(() => {
+        if (replayIndex < replayFrames.length - 1) {
+          replayIndex++;
+          renderReplayIndex(replayIndex);
+        } else {
+          clearInterval(replayTimer);
+          isReplayPlaying = false;
+          btnReplayPlay.textContent = "Replay";
+        }
+      }, 20 / replaySpeed);
+    }
+
+    function toggleReplayPlay() {
+      if (isReplayPlaying) {
+        clearInterval(replayTimer);
+        isReplayPlaying = false;
+        btnReplayPlay.textContent = "Play";
+      } else {
+        if (replayIndex >= replayFrames.length - 1) replayIndex = 0;
+        startReplayLoop();
+      }
+    }
+
+    function stepReplay(step) {
+      clearInterval(replayTimer);
+      isReplayPlaying = false;
+      btnReplayPlay.textContent = "Play";
+      replayIndex = Math.max(0, Math.min(replayFrames.length - 1, replayIndex + step));
+      renderReplayIndex(replayIndex);
+    }
+
+    function onScrubInput(val) {
+      clearInterval(replayTimer);
+      isReplayPlaying = false;
+      btnReplayPlay.textContent = "Play";
+      replayIndex = parseInt(val);
+      renderReplayIndex(replayIndex);
+    }
+
+    function setReplaySpeed(speed) {
+      replaySpeed = speed;
+      if (isReplayPlaying) startReplayLoop();
+    }
+
+    function renderReplayIndex(idx) {
+      replayScrubSlider.value = idx;
+      const frame = replayFrames[idx];
+      const remainingSec = ((replayFrames.length - 1 - idx) * 0.02).toFixed(1);
+      replayTimeLabel.textContent = `T - ${remainingSec}s`;
+
+      updateFleetUI(frame);
+      renderArena(frame);
+    }
+
+    function exitReplayMode() {
+      isReplayMode = false;
+      clearInterval(replayTimer);
+      replayControlBar.classList.remove("active");
+      playTone("chirp");
+    }
+
+    // Voice
+    let speechRec = null;
+    let isRecording = false;
+
+    function toggleVoice() {
+      if (isRecording) { stopVoice(); return; }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) { cmdInput.focus(); return; }
+
+      speechRec = new SpeechRecognition();
+      speechRec.lang = "en-US";
+      speechRec.onstart = () => {
+        isRecording = true;
+        document.getElementById("micBtn").style.background = "#ef4444";
+        playTone("chirp");
+      };
+      speechRec.onresult = (e) => {
+        cmdInput.value = e.results[0][0].transcript;
+        executeCommand();
+      };
+      speechRec.onend = stopVoice;
+      speechRec.onerror = stopVoice;
+      speechRec.start();
+    }
+
+    function stopVoice() {
+      isRecording = false;
+      document.getElementById("micBtn").style.background = "";
+      if (speechRec) { try { speechRec.stop(); } catch (_) {} }
+    }
+
+    // Teleop
+    function setTeleop(v, w) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        if (currentBridgeMode === "ROS2_BRIDGE") {
+          ws.send(JSON.stringify({
+            type: "ros2_cmd_vel",
+            agent_id: focusedAgentId,
+            twist: {
+              linear: { x: v, y: 0.0, z: 0.0 },
+              angular: { x: 0.0, y: 0.0, z: w }
+            }
+          }));
+        } else {
+          ws.send(JSON.stringify({
+            type: "teleop",
+            agent_id: focusedAgentId,
+            linear_v: v,
+            angular_v: w
+          }));
+        }
+      }
+    }
+
+    function stopTeleop() {
+      setTeleop(0.0, 0.0);
+    }
+
+    const activeKeys = new Set();
+    window.addEventListener("keydown", (e) => {
+      if (document.activeElement === cmdInput) return;
+      if (["KeyW", "KeyA", "KeyS", "KeyD", "Space"].includes(e.code)) e.preventDefault();
+
+      if (e.code === "Space") {
+        triggerTargetEstop();
+        return;
+      }
+
+      activeKeys.add(e.code);
+      handleKeys();
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (document.activeElement === cmdInput) return;
+      activeKeys.delete(e.code);
+      handleKeys();
+    });
+
+    function handleKeys() {
+      let v = 0.0, w = 0.0;
+      if (activeKeys.has("KeyW")) v += 0.65;
+      if (activeKeys.has("KeyS")) v -= 0.50;
+      if (activeKeys.has("KeyA")) w += 1.0;
+      if (activeKeys.has("KeyD")) w -= 1.0;
+      setTeleop(v, w);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initWebSocket();
+      initVoiceSelection();
+    });
+  </script>
+</body>
+</html>
