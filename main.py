@@ -274,12 +274,18 @@ class AutonomousAgent:
                     self.target_waypoint = self.waypoint_queue.pop(0)
                     self.macro_progress = f"Heading to {self.target_waypoint.get('name', 'Waypoint')}"
                 else:
-                    self.target_waypoint = None
-                    self.v_target = 0.0
-                    self.w_target = 0.0
-                    self.active_command = None
-                    self.system_status = "ONLINE_STANDBY"
-                    self.macro_progress = "MISSION_COMPLETE"
+                    # Autonomous Continuous Patrol Loop: Loop back to patrol waypoints or recharge
+                    if hasattr(self, "patrol_loop_waypoints") and self.patrol_loop_waypoints:
+                        self.waypoint_queue = [dict(wp) for wp in self.patrol_loop_waypoints]
+                        self.target_waypoint = self.waypoint_queue.pop(0)
+                        self.macro_progress = f"Patrol loop: Heading to {self.target_waypoint.get('name', 'Waypoint')}"
+                    else:
+                        self.target_waypoint = None
+                        self.v_target = 0.0
+                        self.w_target = 0.0
+                        self.active_command = None
+                        self.system_status = "ONLINE_STANDBY"
+                        self.macro_progress = "MISSION_COMPLETE"
             else:
                 target_heading = math.atan2(dy, dx)
                 heading_err = (target_heading - self.theta + math.pi) % (2 * math.pi) - math.pi
@@ -401,6 +407,8 @@ class FleetCoordinator:
             "Bravo": AutonomousAgent("Bravo", "AGV-Bravo", "#f59e0b", priority=2, initial_pose=(8.5, 1.5, math.pi)),
             "Charlie": AutonomousAgent("Charlie", "AGV-Charlie", "#a855f7", priority=3, initial_pose=(1.5, 8.5, -math.pi / 2)),
         }
+        self.init_autonomous_patrol_circuits()
+
         self.yield_events_total = 0
         self.interagent_warnings_total = 0
         self.safety_intercepts_total = 0
@@ -416,6 +424,44 @@ class FleetCoordinator:
         self.chaos_latency_spike_active = False
 
         self.audit_events: List[Dict[str, Any]] = []
+
+    def init_autonomous_patrol_circuits(self):
+        """Initializes continuous warehouse patrol waypoints so all agents move autonomously out-of-the-box."""
+        # Alpha: Base Dock -> Pallet Zone -> Intel NPU Station -> Base Dock
+        alpha_circ = [
+            {"x": 5.0, "y": 6.5, "name": "Storage Pallet", "speed_limit": 0.65},
+            {"x": 7.0, "y": 3.0, "name": "Intel NPU Node", "speed_limit": 0.60},
+            {"x": 1.5, "y": 1.5, "name": "Alpha Dock", "speed_limit": 0.55},
+        ]
+        self.agents["Alpha"].patrol_loop_waypoints = [dict(wp) for wp in alpha_circ]
+        self.agents["Alpha"].waypoint_queue = [dict(wp) for wp in alpha_circ]
+        self.agents["Alpha"].target_waypoint = self.agents["Alpha"].waypoint_queue.pop(0)
+        self.agents["Alpha"].system_status = "AUTONOMOUS_PATROL"
+        self.agents["Alpha"].macro_progress = "Continuous Patrol Circuit"
+
+        # Bravo: Sorting Hub -> Charging Bay -> Sorting Hub
+        bravo_circ = [
+            {"x": 8.5, "y": 7.5, "name": "Charging Station", "speed_limit": 0.55},
+            {"x": 5.0, "y": 3.5, "name": "Transit Junction", "speed_limit": 0.60},
+            {"x": 8.5, "y": 1.5, "name": "Bravo Dock", "speed_limit": 0.55},
+        ]
+        self.agents["Bravo"].patrol_loop_waypoints = [dict(wp) for wp in bravo_circ]
+        self.agents["Bravo"].waypoint_queue = [dict(wp) for wp in bravo_circ]
+        self.agents["Bravo"].target_waypoint = self.agents["Bravo"].waypoint_queue.pop(0)
+        self.agents["Bravo"].system_status = "AUTONOMOUS_PATROL"
+        self.agents["Bravo"].macro_progress = "Continuous Patrol Circuit"
+
+        # Charlie: Receiving Dock -> Forklift Bay -> Receiving Dock
+        charlie_circ = [
+            {"x": 2.5, "y": 5.0, "name": "Forklift Corridor", "speed_limit": 0.55},
+            {"x": 5.0, "y": 6.5, "name": "Sorting Pallet", "speed_limit": 0.60},
+            {"x": 1.5, "y": 8.5, "name": "Charlie Dock", "speed_limit": 0.55},
+        ]
+        self.agents["Charlie"].patrol_loop_waypoints = [dict(wp) for wp in charlie_circ]
+        self.agents["Charlie"].waypoint_queue = [dict(wp) for wp in charlie_circ]
+        self.agents["Charlie"].target_waypoint = self.agents["Charlie"].waypoint_queue.pop(0)
+        self.agents["Charlie"].system_status = "AUTONOMOUS_PATROL"
+        self.agents["Charlie"].macro_progress = "Continuous Patrol Circuit"
 
     def log_audit(self, event_type: str, msg: str, severity: str = "INFO"):
         e = {
@@ -460,7 +506,8 @@ class FleetCoordinator:
     def reset_fleet(self):
         for ag in self.agents.values():
             ag.reset_to_dock()
-        self.log_audit("SYS_RESET", "Fleet repositioned to base docks.", "INFO")
+        self.init_autonomous_patrol_circuits()
+        self.log_audit("SYS_RESET", "Fleet repositioned to base docks with autonomous patrol loop engaged.", "INFO")
 
     def dispatch_command(self, cmd: MotionCommand):
         self.autonomous_decisions_total += 1
